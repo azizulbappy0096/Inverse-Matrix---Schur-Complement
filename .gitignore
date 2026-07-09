@@ -1,0 +1,28 @@
+build/
+dist/
+.coverage
+coverage.xml
+htmlcov/
+.ipynb_checkpoints/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and local config
+*.log
+.env
+.env.*
+
+# Generated artifacts
+*.out
+*.exe
+*.o
+*.obj

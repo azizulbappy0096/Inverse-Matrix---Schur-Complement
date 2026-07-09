@@ -1,0 +1,65 @@
+# depslib dependency file v1.0
+1783617497 source:d:\aiub\thesis\inverse-matrix\schur_complement\main.cpp
+	<iostream>
+	<vector>
+	<string>
+	<cmath>
+	<iomanip>
+	"Metrices/Metrices.h"
+	"Metrices/Validate.h"
+	"Metrices/Math.h"
+
+1783544142 source:d:\aiub\thesis\inverse-matrix\schur_complement\version1\version1.cpp
+	<iostream>
+	<vector>
+
+1783617542 source:d:\aiub\thesis\inverse-matrix\schur_complement\prototype.cpp
+
+1783615589 source:d:\aiub\thesis\inverse-matrix\schur_complement\metrices\metrices.cpp
+	"Metrices.h"
+
+1783612920 d:\aiub\thesis\inverse-matrix\schur_complement\metrices\metrices.h
+	<vector>
+
+1783612698 source:d:\aiub\thesis\inverse-matrix\schur_complement\cholesky.cpp
+
+1783615874 source:d:\aiub\thesis\inverse-matrix\schur_complement\gaussian_jordan.cpp
+	"gaussian_jordan.h"
+	<vector>
+
+1783613089 d:\aiub\thesis\inverse-matrix\schur_complement\validate\validate.h
+	<vector>
+
+1783616627 source:d:\aiub\thesis\inverse-matrix\schur_complement\schur.cpp
+	<iostream>
+	<vector>
+	<string>
+	<cmath>
+	<iomanip>
+	"Metrices/Metrices.h"
+	"Metrices/Validate.h"
+	"Metrices/Math.h"
+
+1783615992 source:d:\aiub\thesis\inverse-matrix\schur_complement\metrices\math.cpp
+	"Math.h"
+
+1783613801 d:\aiub\thesis\inverse-matrix\schur_complement\metrices\math.h
+	<vector>
+
+1783613089 d:\aiub\thesis\inverse-matrix\schur_complement\metrices\validate.h
+	<vector>
+
+1783615236 source:d:\aiub\thesis\inverse-matrix\schur_complement\metrices\validate.cpp
+	<cmath>
+	"Validate.h"
+	"Math.h"
+	"Metrices.h"
+
+1783614206 d:\aiub\thesis\inverse-matrix\schur_complement\schur.h
+	<vector>
+
+1783614568 source:d:\aiub\thesis\inverse-matrix\schur_complement\lu.cpp
+
+1783615272 d:\aiub\thesis\inverse-matrix\schur_complement\gaussian_jordan.h
+	<vector>
+
