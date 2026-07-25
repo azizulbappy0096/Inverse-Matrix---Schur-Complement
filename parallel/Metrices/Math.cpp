@@ -53,12 +53,13 @@ Matrix Multiply(const Matrix& A,
 
     Matrix C(rows, vector<double>(cols, 0));
 
-    #pragma omp parallel for collapse(3) num_threads(NUM_THREADS)
-    for(int i = 0; i < rows; i++)
+    int i, j, k;
+    #pragma omp parallel for private(i, j, k) num_threads(NUM_THREADS)
+    for(i = 0; i < rows; i++)
     {
-        for(int j = 0; j < cols; j++)
+        for(j = 0; j < cols; j++)
         {
-            for(int k = 0; k < inner; k++)
+            for(k = 0; k < inner; k++)
             {
                 C[i][j] += A[i][k] * B[k][j];
             }
