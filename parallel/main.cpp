@@ -3,12 +3,16 @@
 #include <string>
 #include <cmath>
 #include <iomanip>
+#include <omp.h>
+#include <time.h>
 
 #include "Metrices/Metrices.h"
 #include "Metrices/Validate.h"
 #include "Metrices/Math.h"
 
 using namespace std;
+
+#define NUM_OF_THREADS 8
 
 typedef vector<vector<double>> Matrix;
 
@@ -35,6 +39,9 @@ Matrix GetBlock(const Matrix& M,
 {
     Matrix block(size, vector<double>(size));
 
+    int i, j;
+
+    #pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)
     for(int i=0;i<size;i++)
     {
         for(int j=0;j<size;j++)
@@ -51,9 +58,12 @@ void SetBlock(Matrix& destination,
               int row,
               int col)
 {
-    for(size_t i=0;i<source.size();i++)
+    size_t i, j;
+
+    #pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)
+    for(i=0;i<source.size();i++)
     {
-        for(size_t j=0;j<source[i].size();j++)
+        for(j=0;j<source[i].size();j++)
         {
             destination[row+i][col+j]=source[i][j];
         }
@@ -233,20 +243,32 @@ Matrix RecursiveInverse(const Matrix& A)
 int main()
 {
 
-    /*Matrix M =
+    clock_t start_time, end_time;
+
+   /* Matrix M =
     {
-       {5, 7, 9, 0},
-        {4, 3, 8, 0},
-        {7, 5, 6, 0},
-        {0, 0, 0, 0}
-    };*/
+       {8, 1, 2, 3, 4, 5, 6, 7},
+        {1, 8, 0, 0, 0, 0, 0, 0},
+        {2, 0, 8, 0, 0, 0, 0, 0},
+        {3, 0, 0, 8, 0, 0, 0, 0},
+        {4, 0, 0, 0, 8, 0, 0, 0},
+        {5, 0, 0, 0, 0, 8, 0, 0},
+        {6, 0, 0, 0, 0, 0, 8, 0},
+        {7, 0, 0, 0, 0, 0, 0, 8}
+    }; */
 
-    Matrix M = getDiagonallyDominant(16);
+    Matrix M = getDiagonallyDominant(1024);
 
+    start_time = clock();
     Matrix inv = RecursiveInverse(M);
+    end_time = clock();
+    double elapsed_time = double(end_time - start_time) / CLOCKS_PER_SEC;
 
-    cout<<"Inverse Matrix: "<<endl;
-    PrintMatrix(inv);
+    cout << "Number of threads used: " << NUM_OF_THREADS << endl;
+    cout << "Time taken to compute the inverse: " << elapsed_time << " seconds" << endl;
+
+    //cout<<"Inverse Matrix: "<<endl;
+    //PrintMatrix(inv);
 
 
     cout<<"\n-------------------------------------------"<<endl;

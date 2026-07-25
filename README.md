@@ -23,14 +23,4 @@ Currently, the algorithm only works with square matrices of power-of-2 dimension
 
 ## How To Run
 
-### Using Code::Blocks
-
-1. Open the project file `schur_complement.cbp` in Code::Blocks.
-2. Make sure your compiler toolchain is configured in Code::Blocks.
-3. Select the `Debug` or `Release` target from the build dropdown.
-4. Build and Run the program with `Build and Run` or `Ctrl+F10`.
-
-The executable is a console application, so it will open in a terminal window and print:
-
-- the inverse matrix
-- a verification message showing whether `A * A^-1 = I`
+Just run the run.bat file
