@@ -41,7 +41,7 @@ Matrix GetBlock(const Matrix& M,
 
     int i, j;
 
-    #pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)
+    
     for(int i=0;i<size;i++)
     {
         for(int j=0;j<size;j++)
@@ -60,7 +60,7 @@ void SetBlock(Matrix& destination,
 {
     size_t i, j;
 
-    #pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)
+    
     for(i=0;i<source.size();i++)
     {
         for(j=0;j<source[i].size();j++)
