@@ -54,7 +54,7 @@ Matrix Multiply(const Matrix& A,
     Matrix C(rows, vector<double>(cols, 0));
 
     int i, j, k;
-    #pragma omp parallel for private(i, j, k) num_threads(NUM_THREADS)
+   // #pragma omp parallel for private(i, j, k) num_threads(NUM_THREADS)
     for(i = 0; i < rows; i++)
     {
         for(j = 0; j < cols; j++)
