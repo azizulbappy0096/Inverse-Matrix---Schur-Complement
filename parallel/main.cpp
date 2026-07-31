@@ -12,7 +12,7 @@
 
 using namespace std;
 
-#define NUM_OF_THREADS 2
+#define NUM_OF_THREADS 8
 
 typedef vector<vector<double>> Matrix;
 
@@ -40,7 +40,7 @@ Matrix GetBlock(const Matrix& M,
     Matrix block(size, vector<double>(size));
 
     int i, j;
-    #pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)    
+    // #pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)    
     for(i=0;i<size;i++)
     {
         for(j=0;j<size;j++)
@@ -59,7 +59,7 @@ void SetBlock(Matrix& destination,
 {
     size_t i, j;
 
-    #pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)
+    // #pragma omp parallel for private(i, j) num_threads(NUM_OF_THREADS)
     for(i=0;i<source.size();i++)
     {
         for(j=0;j<source[i].size();j++)
@@ -170,27 +170,60 @@ Matrix RecursiveInverse(const Matrix& A)
 
         Matrix invS = RecursiveInverse(S);
 
+        Matrix P, Q, R, T;
 
-        // P
-        Matrix P = Multiply(invA11, A12);
-        P = Multiply(P, invS);
-        P = Multiply(P, A21);
-        P = Multiply(P, invA11);
-        P = Add(invA11, P);
+        #pragma omp taskgroup 
+        {
+            #pragma omp task shared(P, invA11, A12, invS, A21)
+            {
+                // P
+                P = Multiply(invA11, A12);
+                P = Multiply(P, invS);
+                P = Multiply(P, A21);
+                P = Multiply(P, invA11);
+                P = Add(invA11, P);
+            }
 
+            #pragma omp task shared(Q, invA11, A12, invS)
+            {
+                // Q
+                Q = Multiply(invA11, A12);
+                Q = Multiply(Q, invS);
+                Q = ScalarMultiply(Q, -1.0);
+            }
 
-        // Q
-        Matrix Q = Multiply(invA11, A12);
-        Q = Multiply(Q, invS);
-        Q = ScalarMultiply(Q, -1.0);
-
-        // R
-        Matrix R = Multiply(invS, A21);
-        R = Multiply(R, invA11);
-        R = ScalarMultiply(R, -1.0);
+            #pragma omp task shared(R, invS, A21, invA11)
+            {
+                // R
+                R = Multiply(invS, A21);
+                R = Multiply(R, invA11);
+                R = ScalarMultiply(R, -1.0);
+            }   
+        }
 
         // T
-        Matrix T = invS;
+        T = invS;
+
+        // // P
+        // P = Multiply(invA11, A12);
+        // P = Multiply(P, invS);
+        // P = Multiply(P, A21);
+        // P = Multiply(P, invA11);
+        // P = Add(invA11, P);
+
+
+        // // Q
+        // Q = Multiply(invA11, A12);
+        // Q = Multiply(Q, invS);
+        // Q = ScalarMultiply(Q, -1.0);
+
+        // // R
+        // R = Multiply(invS, A21);
+        // R = Multiply(R, invA11);
+        // R = ScalarMultiply(R, -1.0);
+
+        // // T
+        // T = invS;
 
         return CombineMatrix(P, Q, R, T);
     }
@@ -209,28 +242,58 @@ Matrix RecursiveInverse(const Matrix& A)
 
         Matrix invS = RecursiveInverse(S);
 
+        Matrix P, Q, R, T;
+
         // P
-        Matrix P = invS;
+        P = invS;
+
+        #pragma omp taskgroup
+        {
+            #pragma omp task shared(Q, invS, A12, invA22)
+            {
+                // Q
+                Q = Multiply(invS, A12);
+                Q = Multiply(Q, invA22);
+                Q = ScalarMultiply(Q, -1.0);
+            }
+
+            #pragma omp task shared(R, invA22, A21, invS)
+            {
+                // R
+                R = Multiply(invA22, A21);
+                R = Multiply(R, invS);
+                R = ScalarMultiply(R, -1.0);
+            }
+
+            #pragma omp task shared(T, invA22, A21, invS, A12)
+            {
+                // T
+                T = Multiply(invA22, A21);
+                T = Multiply(T, invS);
+                T = Multiply(T, A12);
+                T = Multiply(T, invA22);
+                T = Add(invA22, T);
+            }
+        }
+
+        // // Q
+        // Matrix Q = Multiply(invS, A12);
+        // Q = Multiply(Q, invA22);
+        // Q = ScalarMultiply(Q, -1.0);
 
 
-        // Q
-        Matrix Q = Multiply(invS, A12);
-        Q = Multiply(Q, invA22);
-        Q = ScalarMultiply(Q, -1.0);
+        // // R
+        // Matrix R = Multiply(invA22, A21);
+        // R = Multiply(R, invS);
+        // R = ScalarMultiply(R, -1.0);
 
 
-        // R
-        Matrix R = Multiply(invA22, A21);
-        R = Multiply(R, invS);
-        R = ScalarMultiply(R, -1.0);
-
-
-        // T
-        Matrix T = Multiply(invA22, A21);
-        T = Multiply(T, invS);
-        T = Multiply(T, A12);
-        T = Multiply(T, invA22);
-        T = Add(invA22, T);
+        // // T
+        // Matrix T = Multiply(invA22, A21);
+        // T = Multiply(T, invS);
+        // T = Multiply(T, A12);
+        // T = Multiply(T, invA22);
+        // T = Add(invA22, T);
 
         return CombineMatrix(P, Q, R, T);
     }
@@ -243,6 +306,9 @@ int main()
 {
 
     clock_t start_time, end_time;
+
+    omp_set_nested(1);
+    omp_set_num_threads(NUM_OF_THREADS);
 
    /* Matrix M =
     {
@@ -259,7 +325,19 @@ int main()
     Matrix M = getDiagonallyDominant(1024);
 
     start_time = clock();
-    Matrix inv = RecursiveInverse(M);
+
+    Matrix inv;
+
+    #pragma omp parallel
+    {
+        #pragma omp single nowait
+        {
+            #pragma omp task shared(inv, M)
+            inv = RecursiveInverse(M);
+        }
+    }
+
+    
     end_time = clock();
     double elapsed_time = double(end_time - start_time) / CLOCKS_PER_SEC;
 

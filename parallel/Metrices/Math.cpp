@@ -1,3 +1,5 @@
+#include <omp.h>
+
 #include "Math.h"
 
 Matrix Add(const Matrix& A,
@@ -52,6 +54,7 @@ Matrix Multiply(const Matrix& A,
 
     int i, j, k;
 
+    #pragma omp parallel for private(i, j, k)
     for(i = 0; i < rows; i++)
     {
         for(j = 0; j < cols; j++)
