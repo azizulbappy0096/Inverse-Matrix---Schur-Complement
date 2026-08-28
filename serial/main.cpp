@@ -132,6 +132,41 @@ Matrix Inverse2x2(const Matrix& A)
 }
 
 
+int NextPowerOfTwo(int n) 
+{
+    int p = 1;
+    while (p < n) 
+    {
+        p *= 2;
+    }
+    return p;
+}
+
+Matrix PadMatrix(const Matrix& A, int newSize) 
+{
+    int n = A.size();
+    
+    // Initialize newSize x newSize matrix
+    Matrix P(newSize, vector<double>(newSize, 0.0));
+    
+    // Copy original matrix
+    for (int i = 0; i < n; i++) 
+    {
+        for (int j = 0; j < n; j++) 
+        {
+            P[i][j] = A[i][j];
+        }
+    }
+    
+    // Add Identity matrix to the bottom-right corner
+    for (int i = n; i < newSize; i++) 
+    {
+        P[i][i] = 1.0;
+    }
+    
+    return P;
+}
+
 Matrix RecursiveInverse(const Matrix& A)
 {
 
@@ -233,34 +268,51 @@ Matrix RecursiveInverse(const Matrix& A)
 }
 
 
+Matrix RunInverse(const Matrix& A)
+{
+    int n = A.size();
+    
+    if (n == 0 || A[0].size() != n) 
+    {
+        throw runtime_error("Matrix is not square.");
+    }
+
+    int m = NextPowerOfTwo(n);
+    if (m == n) 
+    {
+        return RecursiveInverse(A);
+    }
+
+    Matrix P = PadMatrix(A, m);
+
+    Matrix P_inv = RecursiveInverse(P);
+
+    return GetBlock(P_inv, 0, 0, n);
+}
+
 int main()
 {
     clock_t start_time, end_time;
 
-   /* Matrix M =
-    {
-       {8, 1, 2, 3, 4, 5, 6, 7},
-        {1, 8, 0, 0, 0, 0, 0, 0},
-        {2, 0, 8, 0, 0, 0, 0, 0},
-        {3, 0, 0, 8, 0, 0, 0, 0},
-        {4, 0, 0, 0, 8, 0, 0, 0},
-        {5, 0, 0, 0, 0, 8, 0, 0},
-        {6, 0, 0, 0, 0, 0, 8, 0},
-        {7, 0, 0, 0, 0, 0, 0, 8}
-    }; */
+//    Matrix M =
+//     {
+//      {1.0, 2.0, 3.0, 4.0},
+//     {5.0, 6.0, 7.0, 8.0},
+//     {9.0, 10.0, 11.0, 12.0}
+//     }; 
 
 
-    Matrix M = getDiagonallyDominant(1024);
+    Matrix M = getDiagonallyDominant(256);
 
     start_time = clock();
-    Matrix inv = RecursiveInverse(M);
+    Matrix inv = RunInverse(M);
     end_time = clock();
     double elapsed_time = double(end_time - start_time) / CLOCKS_PER_SEC;
 
     cout << "Time taken to compute the inverse: " << elapsed_time << " seconds" << endl;
 
-    //cout<<"Inverse Matrix: "<<endl;
-    //PrintMatrix(inv);
+    // cout<<"Inverse Matrix: "<<endl;
+    // PrintMatrix(inv);
 
 
     cout<<"\n-------------------------------------------"<<endl;

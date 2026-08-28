@@ -138,6 +138,42 @@ Matrix Inverse2x2(const Matrix& A)
 }
 
 
+
+int NextPowerOfTwo(int n) 
+{
+    int p = 1;
+    while (p < n) 
+    {
+        p *= 2;
+    }
+    return p;
+}
+
+Matrix PadMatrix(const Matrix& A, int newSize) 
+{
+    int n = A.size();
+    
+    // Initialize newSize x newSize matrix
+    Matrix P(newSize, vector<double>(newSize, 0.0));
+    
+    // Copy original matrix
+    for (int i = 0; i < n; i++) 
+    {
+        for (int j = 0; j < n; j++) 
+        {
+            P[i][j] = A[i][j];
+        }
+    }
+    
+    // Add Identity matrix to the bottom-right corner
+    for (int i = n; i < newSize; i++) 
+    {
+        P[i][i] = 1.0;
+    }
+    
+    return P;
+}
+
 Matrix RecursiveInverse(const Matrix& A)
 {
 
@@ -302,6 +338,28 @@ Matrix RecursiveInverse(const Matrix& A)
 }
 
 
+Matrix RunInverse(const Matrix& A)
+{
+    int n = A.size();
+    
+    if (n == 0 || A[0].size() != n) 
+    {
+        throw runtime_error("Matrix is not square.");
+    }
+
+    int m = NextPowerOfTwo(n);
+    if (m == n) 
+    {
+        return RecursiveInverse(A);
+    }
+
+    Matrix P = PadMatrix(A, m);
+
+    Matrix P_inv = RecursiveInverse(P);
+
+    return GetBlock(P_inv, 0, 0, n);
+}
+
 int main()
 {
 
@@ -322,7 +380,7 @@ int main()
         {7, 0, 0, 0, 0, 0, 0, 8}
     }; */
 
-    Matrix M = getDiagonallyDominant(1024);
+    Matrix M = getDiagonallyDominant(3);
 
     start_time = clock();
 
@@ -333,7 +391,7 @@ int main()
         #pragma omp single nowait
         {
             #pragma omp task shared(inv, M)
-            inv = RecursiveInverse(M);
+            inv = RunInverse(M);
         }
     }
 
