@@ -152,23 +152,25 @@ int NextPowerOfTwo(int n)
 Matrix PadMatrix(const Matrix& A, int newSize) 
 {
     int n = A.size();
+    Matrix P(newSize); 
     
-    // Initialize newSize x newSize matrix
-    Matrix P(newSize, vector<double>(newSize, 0.0));
-    
-    // Copy original matrix
-    for (int i = 0; i < n; i++) 
+    int i, j;
+    #pragma omp parallel for private(i, j)
+    for (i = 0; i < newSize; i++) 
     {
-        for (int j = 0; j < n; j++) 
+        P[i].resize(newSize, 0.0); 
+        
+        if (i < n) 
         {
-            P[i][j] = A[i][j];
+            for (j = 0; j < n; j++) 
+            {
+                P[i][j] = A[i][j];
+            }
+        } 
+        else 
+        {
+            P[i][i] = 1.0;
         }
-    }
-    
-    // Add Identity matrix to the bottom-right corner
-    for (int i = n; i < newSize; i++) 
-    {
-        P[i][i] = 1.0;
     }
     
     return P;
@@ -380,7 +382,7 @@ int main()
         {7, 0, 0, 0, 0, 0, 0, 8}
     }; */
 
-    Matrix M = getDiagonallyDominant(3);
+    Matrix M = getDiagonallyDominant(2048);
 
     start_time = clock();
 
